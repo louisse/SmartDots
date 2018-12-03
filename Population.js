@@ -1,9 +1,10 @@
 function Population () {
     this.generation = 1;
     this.popSize = 100;
-    this.lifeSpan = 100;
+    this.lifeSpan = 125;
     this.life = this.lifeSpan;
     this.rockets = [];
+    this.spotLight = null;
 
     for (var i = 0; i < this.popSize; i++) {
         this.rockets[i] = new Rocket(this.lifeSpan);
@@ -18,40 +19,53 @@ function Population () {
         }
         for (var i = 0; i < this.rockets.length; i++) {
             this.rockets[i].update();
-            this.rockets[i].show();
+            if (show === true) {
+                this.rockets[i].show();
+            }
+        }
+        if (show === false && this.spotLight !== null) {
+            this.spotLight.show();
         }
         this.life--;
     }
 
     this.evaluate = function() {
-        var sum = 0;
-        var minDist = 0;
+        var maxDist = 0;
         var maxFuel = 0;
+        var maxFit = 0;
         for (var i = 0; i < this.rockets.length; i++) {
-            var d = this.rockets[i].calcDistance();
-            if (d < minDist) {
-                minDist = d;
+            var dist = this.rockets[i].calcDistance();
+            var fuel = this.rockets[i].fuel;
+            if (dist > maxDist) {
+                maxDist = dist;
             }
-            this.rockets[i].calcFuel();
-            sum += this.rockets[i].fitness
-            if (this.rockets[i].fitness > maxFit) {
-                maxFit = this.rockets[i].fitness;
-            }
-            if (this.rockets[i].dead === false && this.rockets[i].fuel > maxFuel) {
-                maxFuel = this.rockets[i].fuel;
+            if (this.rockets[i].finished === true && fuel > maxFuel) {
+                maxFuel = fuel;
             }
         }
-        console.log(maxFuel);
-        // normalize fitness 0 between 1
         for (var i = 0; i < this.rockets.length; i++) {
-            this.rockets[i].prob = this.rockets[i].fitness / sum ;
+            var fitness = this.rockets[i].calcFitness(maxDist, maxFuel);
+            if (fitness > maxFit) {
+                maxFit = fitness;
+            }
+        }
+        for (var i = 0; i < this.rockets.length; i++) {
+            this.rockets[i].normalizeFitness(maxFit);
         }
         var newRockets = [];
+        var maxPotential = Number.MIN_SAFE_INTEGER;
+        var bestChild = null;
         for (var i = 0; i < this.rockets.length; i++) {
             var parentA = this.pickOneRocket();
             var parentB = this.pickOneRocket();
             var newDNA = parentA.DNA.crossover(parentB.DNA);
-            newRockets[i] = new Rocket(this.lifeSpan, newDNA);
+            var child = new Rocket(this.lifeSpan, newDNA);
+            child.setPotential(parentA, parentB);
+            if (child.potential > maxPotential) {
+                maxPotential = child.potential;
+                this.spotLight = child;
+            }
+            newRockets[i] = child;
         }
         this.rockets = newRockets;
     }
@@ -65,5 +79,4 @@ function Population () {
             }
         }
     }
-
 }

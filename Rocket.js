@@ -8,6 +8,8 @@ function Rocket(fuel, dna) {
     this.fullTank = fuel;
     this.fuel = fuel;
     this.dead = false;
+    this.distance = Number.MAX_SAFE_INTEGER;
+    this.potential = 0;
 
     if (typeof dna !== 'undefined') {
         this.DNA = dna;
@@ -16,9 +18,6 @@ function Rocket(fuel, dna) {
     }
 
     this.show = function() {
-        if (show === false) {
-            return;
-        }
         push();
         translate(this.pos.x, this.pos.y);
         rotate(this.vel.heading());
@@ -54,22 +53,30 @@ function Rocket(fuel, dna) {
     }
 
     this.calcDistance = function() {
-        return this.pos.dist(target.pos);
+        this.distance = this.pos.dist(target.pos);
+        return this.distance <= 15 ? 0 : this.distance;
     }
 
-    this.calcFitness = function() {
-        var d = this.calcDistance();
-        if (d <= 15) {
-            d = 0;
+    this.calcFitness = function(maxDist, maxFuel) {
+        var normDist = this.distance / maxDist;
+        normDist = 1 - normDist;
+        this.fitness = normDist;
+
+        if (this.finished === true) {
+            var normFuel = this.fuel / maxFuel;
+            this.fitness += normFuel * 10;
         }
-        var fitness = 1 / (d + 1);
-        var f = pow(this.fuel, 2);
-        f = map(f, 0, this.fullTank, 0.5, 1);
         if (this.dead === true) {
-            fitness /= 5;
-        } else if (this.fuel > 0) {
-            fitness += f;
+            this.fitness /= 10;
         }
-        this.fitness = fitness;
+        return this.fitness;
+    }
+
+    this.normalizeFitness = function(maxFit) {
+        this.fitness = this.fitness / maxFit;
+    }
+
+    this.setPotential = function(parentA, parentB) {
+        this.potential = (parentA.fitness * parentA.DNA.bias) + parentB.fitness * (1 - parentA.DNA.bias);
     }
 }

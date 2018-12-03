@@ -1,10 +1,9 @@
 function DNA(moves, genes, color) {
     this.moveCount = moves;
     this.count = 0;
-    this.mutationRate = 0.001;
+    this.mutationRate = 0.01;
     this.bias = 0.75;
     if (Array.isArray(genes) === true) {
-    // if (genes !== null) {
         this.genes = genes;
     } else {
         this.genes = [];
@@ -13,7 +12,6 @@ function DNA(moves, genes, color) {
         }
     }
     if (!isNaN(parseFloat(color)) && isFinite(color)) {
-    // if (color !== null) {
         this.color = floor(color);
     } else {
         this.color = floor(random(360));
