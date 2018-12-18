@@ -1,7 +1,7 @@
 var population;
 var target;
 var obstacle;
-var show = true;
+
 function setup() {
     createCanvas(600, 800);
     population = new Population();
@@ -15,10 +15,4 @@ function draw() {
     target.show();
     obstacle.show();
     population.run();
-}
-
-function keyPressed() {
-    if (keyCode === 83) {
-        show = show === false;
-    }
 }

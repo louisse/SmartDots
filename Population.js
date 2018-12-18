@@ -1,82 +1,64 @@
-function Population () {
+function Population() {
     this.generation = 1;
-    this.popSize = 100;
-    this.lifeSpan = 125;
+    this.popSize = 1000;
+    this.lifeSpan = 200;
     this.life = this.lifeSpan;
     this.rockets = [];
-    this.spotLight = null;
-
-    for (var i = 0; i < this.popSize; i++) {
-        this.rockets[i] = new Rocket(this.lifeSpan);
+    for (let i = 0; i < this.popSize; i++) {
+        this.rockets[i] = new Rocket(this.life);
     }
+    this.bestRocket = this.rockets[0];
 
-    this.run = function() {
-        if (this.life <= 0) {
-            this.generation++;
-            this.life = this.lifeSpan;
-            this.evaluate();
-            console.log('gen ' + this.generation);
+    this.run = function () {
+        let allDead = true;
+        for (let i = 0; i < this.rockets.length; i++) {
+            let rocket = this.rockets[i];
+            allDead = allDead && rocket.dead;
+            rocket.update();
+            // rocket.show();
         }
-        for (var i = 0; i < this.rockets.length; i++) {
-            this.rockets[i].update();
-            if (show === true) {
-                this.rockets[i].show();
-            }
-        }
-        if (show === false && this.spotLight !== null) {
-            this.spotLight.show();
-        }
+        this.rockets[0].show();
         this.life--;
-    }
-
-    this.evaluate = function() {
-        var maxDist = 0;
-        var maxFuel = 0;
-        var maxFit = 0;
-        for (var i = 0; i < this.rockets.length; i++) {
-            var dist = this.rockets[i].calcDistance();
-            var fuel = this.rockets[i].fuel;
-            if (dist > maxDist) {
-                maxDist = dist;
-            }
-            if (this.rockets[i].finished === true && fuel > maxFuel) {
-                maxFuel = fuel;
-            }
+        if (this.life <= 0 || allDead) {
+            this.evaluate();
         }
-        for (var i = 0; i < this.rockets.length; i++) {
-            var fitness = this.rockets[i].calcFitness(maxDist, maxFuel);
+    };
+
+    this.evaluate = function () {
+        this.generation++;
+        console.log('gen ' + this.generation);
+        this.lifeSpan = this.bestRocket.finished === true ? this.bestRocket.fuel : this.lifeSpan;
+        this.life = this.lifeSpan;
+        let maxFit = 0;
+        for (let i = 0; i < this.rockets.length; i++) {
+            let rocket = this.rockets[i];
+            let fitness = rocket.calcFitness();
             if (fitness > maxFit) {
                 maxFit = fitness;
+                this.bestRocket = rocket;
             }
         }
-        for (var i = 0; i < this.rockets.length; i++) {
-            this.rockets[i].normalizeFitness(maxFit);
+        for (let i = 0; i < this.rockets.length; i++) {
+            let rocket = this.rockets[i];
+            rocket.normalizeFitness(maxFit);
         }
-        var newRockets = [];
-        var maxPotential = Number.MIN_SAFE_INTEGER;
-        var bestChild = null;
-        for (var i = 0; i < this.rockets.length; i++) {
-            var parentA = this.pickOneRocket();
-            var parentB = this.pickOneRocket();
-            var newDNA = parentA.DNA.crossover(parentB.DNA);
-            var child = new Rocket(this.lifeSpan, newDNA);
-            child.setPotential(parentA, parentB);
-            if (child.potential > maxPotential) {
-                maxPotential = child.potential;
-                this.spotLight = child;
-            }
-            newRockets[i] = child;
+            let newRockets = [];
+        for (let j = 0; j < this.rockets.length; j++) {
+            let parentA = this.pickOneRocket();
+            let parentB = this.pickOneRocket();
+            let newDNA = parentA.DNA.crossover(parentB.DNA);
+            newRockets[j] = new Rocket(this.lifeSpan, newDNA);
         }
+        newRockets[0] = this.bestRocket.clone();
         this.rockets = newRockets;
-    }
+    };
 
-    this.pickOneRocket = function() {
+    this.pickOneRocket = function () {
         while (true) {
-            var rocket = random(this.rockets);
-            var count = random();
-            if (count < rocket.fitness) {
+            let rocket = random(this.rockets);
+            if (random() < rocket.fitness) {
                 return rocket;
             }
         }
-    }
+    };
 }
