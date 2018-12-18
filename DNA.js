@@ -1,7 +1,7 @@
 function DNA(moves, genes, color) {
     this.moveCount = moves;
-    this.mutationRate = 0.01;
-    this.bias = 0.75;
+    this.mutationRate = 0.1;
+    this.bias = 0.50;
     if (typeof genes !== 'undefined') {
         this.genes = genes;
     } else {

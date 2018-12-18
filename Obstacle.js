@@ -1,7 +1,7 @@
-function Obstacle() {
-    this.pos = createVector(width / 4, height / 2);
-    this.width = width / 2;
-    this.height = 30;
+function Obstacle(x, y, w, h) {
+    this.pos = createVector(x, y);
+    this.width = w;
+    this.height = h;
 
     this.show = function () {
         noStroke();

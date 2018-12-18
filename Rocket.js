@@ -16,6 +16,9 @@ function Rocket(fuel, dna) {
     }
 
     this.show = function () {
+        if (this.dead === true) {
+            return;
+        }
         push();
         translate(this.pos.x, this.pos.y);
         rotate(this.vel.heading());
@@ -35,8 +38,11 @@ function Rocket(fuel, dna) {
         this.acc = this.DNA.move(this.fuel);
         this.vel.add(this.acc);
         this.pos.add(this.vel);
-        if (obstacle.pos.x < this.pos.x && this.pos.x < obstacle.pos.x + obstacle.width && obstacle.pos.y < this.pos.y && this.pos.y < obstacle.pos.y + obstacle.height) {
-            this.dead = true;
+        for (let i = 0; i < solids.length; i++) {
+            let obstacle = solids[i];
+            if (obstacle.pos.x < this.pos.x && this.pos.x < obstacle.pos.x + obstacle.width && obstacle.pos.y < this.pos.y && this.pos.y < obstacle.pos.y + obstacle.height) {
+                this.dead = true;
+            }
         }
         if ((0 < this.pos.x && this.pos.x < width && 0 < this.pos.y && this.pos.y < height) === false) {
             this.dead = true;
@@ -64,12 +70,12 @@ function Rocket(fuel, dna) {
         return this.fitness;
     };
 
-    this.clone = function() {
+    this.clone = function () {
         let newDNA = new DNA(this.fullTank, this.DNA.genes, this.DNA.color);
         return new Rocket(this.fullTank, newDNA);
     };
 
-    this.normalizeFitness = function(maxFit) {
+    this.normalizeFitness = function (maxFit) {
         this.fitness = this.fitness / maxFit;
     }
 }

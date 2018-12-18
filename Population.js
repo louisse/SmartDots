@@ -24,11 +24,7 @@ function Population() {
         }
     };
 
-    this.evaluate = function () {
-        this.generation++;
-        console.log('gen ' + this.generation);
-        this.lifeSpan = this.bestRocket.finished === true ? this.bestRocket.fuel : this.lifeSpan;
-        this.life = this.lifeSpan;
+    this.fitnessEval = function () {
         let maxFit = 0;
         for (let i = 0; i < this.rockets.length; i++) {
             let rocket = this.rockets[i];
@@ -42,7 +38,15 @@ function Population() {
             let rocket = this.rockets[i];
             rocket.normalizeFitness(maxFit);
         }
-            let newRockets = [];
+    };
+
+    this.evaluate = function () {
+        this.fitnessEval();
+        this.generation++;
+        console.log('gen ' + this.generation);
+        this.lifeSpan = this.bestRocket.finished === true ? this.bestRocket.fuel : this.lifeSpan;
+        this.life = this.lifeSpan;
+        let newRockets = [];
         for (let j = 0; j < this.rockets.length; j++) {
             let parentA = this.pickOneRocket();
             let parentB = this.pickOneRocket();
