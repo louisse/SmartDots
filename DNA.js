@@ -1,6 +1,6 @@
 function DNA(moves, genes, color) {
     this.moveCount = moves;
-    this.mutationRate = 0.1;
+    this.mutationRate = 0.10;
     this.bias = 0.50;
     if (typeof genes !== 'undefined') {
         this.genes = genes;
@@ -20,10 +20,10 @@ function DNA(moves, genes, color) {
         return this.genes[count];
     };
 
-    this.crossover = function (partner) {
+    this.crossover = function (partner, moveCount) {
         let newGenes = [];
         let newColor = this.color;
-        for (let i = 0; i < this.genes.length; i++) {
+        for (let i = 0; i < moveCount; i++) {
             if (this.decide(this.bias) === true) {
                 newGenes[i] = this.genes[i];
             } else {

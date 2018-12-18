@@ -37,6 +37,7 @@ function Rocket(fuel, dna) {
 
         this.acc = this.DNA.move(this.fuel);
         this.vel.add(this.acc);
+        this.vel.limit(8);
         this.pos.add(this.vel);
         for (let i = 0; i < solids.length; i++) {
             let obstacle = solids[i];

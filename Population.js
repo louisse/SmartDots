@@ -7,7 +7,6 @@ function Population() {
     for (let i = 0; i < this.popSize; i++) {
         this.rockets[i] = new Rocket(this.life);
     }
-    this.bestRocket = this.rockets[0];
 
     this.run = function () {
         let allDead = true;
@@ -26,34 +25,40 @@ function Population() {
 
     this.fitnessEval = function () {
         let maxFit = 0;
+        let bestRocket = null;
         for (let i = 0; i < this.rockets.length; i++) {
             let rocket = this.rockets[i];
             let fitness = rocket.calcFitness();
             if (fitness > maxFit) {
                 maxFit = fitness;
-                this.bestRocket = rocket;
+                bestRocket = rocket;
             }
         }
+        bestRocket.fitness *= 2;
         for (let i = 0; i < this.rockets.length; i++) {
             let rocket = this.rockets[i];
             rocket.normalizeFitness(maxFit);
         }
+        return bestRocket;
     };
 
     this.evaluate = function () {
-        this.fitnessEval();
+        let bestRocket = this.fitnessEval();
+        if (bestRocket.finished) {
+            console.log('FINISHED!');
+        }
         this.generation++;
         console.log('gen ' + this.generation);
-        this.lifeSpan = this.bestRocket.finished === true ? this.bestRocket.fuel : this.lifeSpan;
+        this.lifeSpan = bestRocket.finished === true ? bestRocket.fuel : this.lifeSpan;
         this.life = this.lifeSpan;
         let newRockets = [];
         for (let j = 0; j < this.rockets.length; j++) {
             let parentA = this.pickOneRocket();
             let parentB = this.pickOneRocket();
-            let newDNA = parentA.DNA.crossover(parentB.DNA);
+            let newDNA = parentA.DNA.crossover(parentB.DNA, this.lifeSpan);
             newRockets[j] = new Rocket(this.lifeSpan, newDNA);
         }
-        newRockets[0] = this.bestRocket.clone();
+        newRockets[0] = bestRocket.clone();
         this.rockets = newRockets;
     };
 
