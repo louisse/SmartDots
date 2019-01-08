@@ -15,24 +15,35 @@ function DNA(moves, genes, color) {
     } else {
         this.color = floor(random(360));
     }
+    this.color = floor(random(360));
 
     this.move = function (count) {
         return this.genes[count];
     };
 
+    this.clone = function () {
+        return new DNA(this.moveCount, this.genes, this.color);
+    };
+
     this.crossover = function (partner, moveCount) {
         let newGenes = [];
         let newColor = this.color;
-        for (let i = 0; i < moveCount; i++) {
-            if (this.decide(this.bias) === true) {
+        let midpoint = random(moveCount);
+        for (let i = 0; i < this.genes.length; i++) {
+            if (i <= midpoint) {
                 newGenes[i] = this.genes[i];
-            } else {
+            }
+            if (i > midpoint) {
                 newGenes[i] = partner.genes[i];
             }
             if (this.decide(this.mutationRate) === true) {
                 newGenes[i] = p5.Vector.random2D();
             }
         }
+        while (newGenes.length < moveCount) {
+            newGenes.push(p5.Vector.random2D());
+        }
+        newGenes.length = moveCount;
         if (this.decide(this.bias) === false) {
             newColor = partner.color;
         }
@@ -43,6 +54,7 @@ function DNA(moves, genes, color) {
     };
 
     this.decide = function (chance) {
-        return random() < chance;
+        let roll = random();
+        return roll <= chance;
     };
 }

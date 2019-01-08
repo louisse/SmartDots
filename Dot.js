@@ -1,4 +1,4 @@
-function Rocket(fuel, dna) {
+function Dot(fuel, dna) {
     this.pos = createVector(width / 2, height);
     this.vel = createVector();
     this.acc = createVector();
@@ -8,6 +8,7 @@ function Rocket(fuel, dna) {
     this.fuel = 0;
     this.dead = false;
     this.distance = Infinity;
+    this.size = 10;
 
     if (typeof dna !== 'undefined') {
         this.DNA = dna;
@@ -25,8 +26,7 @@ function Rocket(fuel, dna) {
         noStroke();
         colorMode(HSB);
         fill(this.DNA.color, 200, 50, 0.75);
-        rectMode(CENTER);
-        rect(0, 0, 50, 10);
+        ellipse(0, 0, this.size, this.size);
         pop();
     };
 
@@ -37,7 +37,7 @@ function Rocket(fuel, dna) {
 
         this.acc = this.DNA.move(this.fuel);
         this.vel.add(this.acc);
-        this.vel.limit(8);
+        this.vel.limit(5);
         this.pos.add(this.vel);
         for (let i = 0; i < solids.length; i++) {
             let obstacle = solids[i];
@@ -60,23 +60,28 @@ function Rocket(fuel, dna) {
     };
 
     this.calcFitness = function () {
-        this.fitness = 1 / (this.distance * this.distance) + 1;
+        this.fitness = 1 / (this.distance * this.distance);
         if (this.dead === true) {
-            this.fitness /= 10;
+            this.fitness /= 2;
         }
         if (this.finished === true) {
             let fuelSaved = this.fullTank - this.fuel;
-            this.fitness *= (fuelSaved * fuelSaved) + 3;
+            this.fitness *= fuelSaved * fuelSaved;
         }
         return this.fitness;
     };
 
     this.clone = function () {
-        let newDNA = new DNA(this.fullTank, this.DNA.genes, this.DNA.color);
-        return new Rocket(this.fullTank, newDNA);
+        let newDNA = this.DNA.clone();
+        return new Dot(this.fullTank, newDNA);
     };
 
-    this.normalizeFitness = function (maxFit) {
-        this.fitness = this.fitness / maxFit;
-    }
+    this.normalizeFitness = function (sumFit) {
+        this.fitness = this.fitness / sumFit;
+    };
+
+    this.crossover = function(partner, moveCount) {
+        let newDNA = this.DNA.crossover(partner.DNA, moveCount);
+        return new Dot(moveCount, newDNA);
+    };
 }

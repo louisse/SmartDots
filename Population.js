@@ -1,22 +1,22 @@
-function Population() {
-    this.generation = 1;
-    this.popSize = 1000;
-    this.lifeSpan = 200;
+function Population(size, span) {
+    this.popSize = size;
+    this.lifeSpan = span;
+    this.generation = 0;
     this.life = this.lifeSpan;
-    this.rockets = [];
+    this.dots = [];
     for (let i = 0; i < this.popSize; i++) {
-        this.rockets[i] = new Rocket(this.life);
+        this.dots[i] = new Dot(this.life);
     }
 
     this.run = function () {
         let allDead = true;
-        for (let i = 0; i < this.rockets.length; i++) {
-            let rocket = this.rockets[i];
-            allDead = allDead && rocket.dead;
-            rocket.update();
-            // rocket.show();
+        for (let i = 0; i < this.dots.length; i++) {
+            let dot = this.dots[i];
+            allDead = allDead && dot.dead;
+            dot.update();
+            // dot.show();
         }
-        this.rockets[0].show();
+        this.dots[0].show();
         this.life--;
         if (this.life <= 0 || allDead) {
             this.evaluate();
@@ -25,48 +25,57 @@ function Population() {
 
     this.fitnessEval = function () {
         let maxFit = 0;
-        let bestRocket = null;
-        for (let i = 0; i < this.rockets.length; i++) {
-            let rocket = this.rockets[i];
-            let fitness = rocket.calcFitness();
+        let sumFit = 0;
+        let bestDot = null;
+        for (let i = 0; i < this.dots.length; i++) {
+            let dot = this.dots[i];
+            let fitness = dot.calcFitness();
+            sumFit += dot.fitness;
             if (fitness > maxFit) {
                 maxFit = fitness;
-                bestRocket = rocket;
+                bestDot = dot;
             }
         }
-        bestRocket.fitness *= 2;
-        for (let i = 0; i < this.rockets.length; i++) {
-            let rocket = this.rockets[i];
-            rocket.normalizeFitness(maxFit);
+        sumFit = sumFit - bestDot.fitness + (bestDot.fitness * 10);
+        bestDot.fitness *= 10;
+        for (let i = 0; i < this.dots.length; i++) {
+            let dot = this.dots[i];
+            dot.normalizeFitness(sumFit);
         }
-        return bestRocket;
+        return bestDot;
     };
 
     this.evaluate = function () {
-        let bestRocket = this.fitnessEval();
-        if (bestRocket.finished) {
-            console.log('FINISHED!');
+        let bestDot = this.fitnessEval();
+        if (!finished && bestDot.finished) {
+            finished = true;
+            console.log('FINISHED! -->> ', this.generation);
         }
         this.generation++;
         console.log('gen ' + this.generation);
-        this.lifeSpan = bestRocket.finished === true ? bestRocket.fuel : this.lifeSpan;
-        this.life = this.lifeSpan;
-        let newRockets = [];
-        for (let j = 0; j < this.rockets.length; j++) {
-            let parentA = this.pickOneRocket();
-            let parentB = this.pickOneRocket();
-            let newDNA = parentA.DNA.crossover(parentB.DNA, this.lifeSpan);
-            newRockets[j] = new Rocket(this.lifeSpan, newDNA);
+        if (!finished && this.generation % 10 === 0) {
+            this.lifeSpan += 100;
         }
-        newRockets[0] = bestRocket.clone();
-        this.rockets = newRockets;
+        this.lifeSpan = finished ? bestDot.fuel : this.lifeSpan;
+        this.life = this.lifeSpan;
+        let newDots = [];
+        for (let j = 0; j < this.dots.length; j++) {
+            let parentA = this.pickOneDot();
+            let parentB = this.pickOneDot();
+            newDots[j] = parentA.crossover(parentB, this.lifeSpan);
+        }
+        newDots[0] = bestDot.clone();
+        newDots[0].size *= 1.2;
+        this.dots = newDots;
     };
 
-    this.pickOneRocket = function () {
+    this.pickOneDot = function () {
+        let num = random();
         while (true) {
-            let rocket = random(this.rockets);
-            if (random() < rocket.fitness) {
-                return rocket;
+            let dot = random(this.dots);
+            num -= dot.fitness;
+            if (num <= 0) {
+                return dot;
             }
         }
     };

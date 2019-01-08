@@ -4,6 +4,6 @@ function Target() {
     this.show = function() {
         noStroke();
         fill(100, 255, 100, 100);
-        ellipse(this.pos.x, this.pos.y, 30, 30);
-    }
+        ellipse(this.pos.x, this.pos.y, 20, 20);
+    };
 }
