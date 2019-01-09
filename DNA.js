@@ -1,6 +1,6 @@
 function DNA(moves, genes, color) {
     this.moveCount = moves;
-    this.mutationRate = 0.10;
+    this.mutationRate = 0.20;
     this.bias = 0.50;
     if (typeof genes !== 'undefined') {
         this.genes = genes;
@@ -36,7 +36,7 @@ function DNA(moves, genes, color) {
             if (i > midpoint) {
                 newGenes[i] = partner.genes[i];
             }
-            if (this.decide(this.mutationRate) === true) {
+            if ((i >= moveCount - 100) && (this.decide(this.mutationRate) === true)) {
                 newGenes[i] = p5.Vector.random2D();
             }
         }

@@ -18,7 +18,7 @@ function Population(size, span) {
         }
         this.dots[0].show();
         this.life--;
-        if (this.life <= 0 || allDead) {
+        if (this.life <= 0 || allDead === true) {
             this.evaluate();
         }
     };
@@ -47,25 +47,27 @@ function Population(size, span) {
 
     this.evaluate = function () {
         let bestDot = this.fitnessEval();
-        if (!finished && bestDot.finished) {
+        if (finished === false && bestDot.finished === true) {
             finished = true;
             console.log('FINISHED! -->> ', this.generation);
         }
         this.generation++;
         console.log('gen ' + this.generation);
-        if (!finished && this.generation % 10 === 0) {
+        if (finished === false && this.generation % 5 === 0) {
             this.lifeSpan += 100;
         }
-        this.lifeSpan = finished ? bestDot.fuel : this.lifeSpan;
+        if (finished === true && bestDot.fitness < this.lifeSpan) {
+            this.lifeSpan = bestDot.fuel;
+        }
         this.life = this.lifeSpan;
         let newDots = [];
-        for (let j = 0; j < this.dots.length; j++) {
+        for (let i = 1; i < this.dots.length; i++) {
             let parentA = this.pickOneDot();
             let parentB = this.pickOneDot();
-            newDots[j] = parentA.crossover(parentB, this.lifeSpan);
+            newDots[i] = parentA.crossover(parentB, this.lifeSpan);
         }
         newDots[0] = bestDot.clone();
-        newDots[0].size *= 1.2;
+        newDots[0].size *= 1.5;
         this.dots = newDots;
     };
 

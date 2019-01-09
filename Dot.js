@@ -1,5 +1,5 @@
 function Dot(fuel, dna) {
-    this.pos = createVector(width / 2, height);
+    this.pos = createVector(0, height * 0.875);
     this.vel = createVector();
     this.acc = createVector();
     this.fitness = 0;
@@ -56,13 +56,13 @@ function Dot(fuel, dna) {
 
     this.calcDistance = function () {
         this.distance = this.pos.dist(target.pos);
-        return this.distance <= 15 ? 0 : this.distance;
+        return this.distance;
     };
 
     this.calcFitness = function () {
         this.fitness = 1 / (this.distance * this.distance);
         if (this.dead === true) {
-            this.fitness /= 2;
+            this.fitness /= 5;
         }
         if (this.finished === true) {
             let fuelSaved = this.fullTank - this.fuel;
@@ -80,8 +80,8 @@ function Dot(fuel, dna) {
         this.fitness = this.fitness / sumFit;
     };
 
-    this.crossover = function(partner, moveCount) {
-        let newDNA = this.DNA.crossover(partner.DNA, moveCount);
-        return new Dot(moveCount, newDNA);
+    this.crossover = function(partner, fuel) {
+        let newDNA = this.DNA.crossover(partner.DNA, fuel);
+        return new Dot(fuel, newDNA);
     };
 }
