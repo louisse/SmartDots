@@ -15,7 +15,6 @@ function DNA(moves, genes, color) {
     } else {
         this.color = floor(random(360));
     }
-    this.color = floor(random(360));
 
     this.move = function (count) {
         return this.genes[count];
