@@ -2,9 +2,14 @@ let population;
 let target;
 const solids = [];
 let finished = false;
+let speed;
+let showAll;
 
 function setup() {
     createCanvas(600, 800);
+    speed = createSlider(1, 10, 1, 1);
+    showAll = createButton('show best', true);
+    showAll.mousePressed(showHandle);
     population = new Population(1000, 100);
     target = new Target();
     solids.push(new Obstacle(0, height * 0.25, width * 0.75, 15));
@@ -15,10 +20,20 @@ function setup() {
 }
 
 function draw() {
-    background(51);
+    background(30);
     target.show();
     for (let i = 0; i < solids.length; i++) {
         solids[i].show();
     }
     population.run();
+}
+
+function showHandle() {
+    let value = showAll.value();
+    showAll.value(value === 'false');
+    if (value === 'false') {
+        showAll.html('show best');
+    } else {
+        showAll.html('show all');
+    }
 }

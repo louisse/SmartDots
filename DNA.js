@@ -1,59 +1,58 @@
-function DNA(moves, genes, color) {
-    this.moveCount = moves;
-    this.mutationRate = 0.20;
-    this.bias = 0.50;
-    if (typeof genes !== 'undefined') {
-        this.genes = genes;
-    } else {
-        this.genes = [];
-        for (let i = 0; i < this.moveCount; i++) {
-            this.genes[i] = p5.Vector.random2D();
-        }
-    }
-    if (typeof color !== 'undefined') {
-        this.color = floor(color);
-    } else {
-        this.color = floor(random(360));
+class DNA {
+    constructor(moves, genes, color) {
+        this.moveCount = moves;
+        this.mutationRate = 0.03;
+        this.bias = 0.50;
+        this.genes = typeof genes === 'undefined' ? this.makeRandomGenes(this.moveCount) : genes;
+        this.color = typeof color === 'undefined' ? floor(random(360)) : color;
     }
 
-    this.move = function (count) {
+    move(count) {
         return this.genes[count];
     };
 
-    this.clone = function () {
+    clone() {
         return new DNA(this.moveCount, this.genes, this.color);
     };
 
-    this.crossover = function (partner, moveCount) {
+    crossover(partner, moveCount) {
         let newGenes = [];
         let newColor = this.color;
         let midpoint = random(moveCount);
         for (let i = 0; i < this.genes.length; i++) {
-            if (i <= midpoint) {
-                newGenes[i] = this.genes[i];
-            }
+            newGenes[i] = this.genes[i];
             if (i > midpoint) {
                 newGenes[i] = partner.genes[i];
             }
-            if ((i >= moveCount - 100) && (this.decide(this.mutationRate) === true)) {
+            if (this.decide(this.mutationRate) === true) {
                 newGenes[i] = p5.Vector.random2D();
             }
         }
-        while (newGenes.length < moveCount) {
-            newGenes.push(p5.Vector.random2D());
+        if (newGenes.length < moveCount) {
+            newGenes = newGenes.concat(this.makeRandomGenes(moveCount - newGenes.length));
+        } else if (newGenes.length > moveCount) {
+            newGenes.length = moveCount;
         }
-        newGenes.length = moveCount;
         if (this.decide(this.bias) === false) {
             newColor = partner.color;
         }
         if (this.decide(this.mutationRate) === true) {
             newColor = floor(random(360));
         }
+
         return new DNA(this.moveCount, newGenes, newColor);
     };
 
-    this.decide = function (chance) {
+    decide(chance) {
         let roll = random();
         return roll <= chance;
     };
+
+    makeRandomGenes(moveCount) {
+        let arr = [];
+        for (let i = 0; i < moveCount; i++) {
+            arr.push(p5.Vector.random2D());
+        }
+        return arr;
+    }
 }

@@ -1,77 +1,86 @@
-function Population(size, span) {
-    this.popSize = size;
-    this.lifeSpan = span;
-    this.generation = 0;
-    this.life = this.lifeSpan;
-    this.dots = [];
-    for (let i = 0; i < this.popSize; i++) {
-        this.dots[i] = new Dot(this.life);
+class Population {
+    constructor(size, span) {
+        this.popSize = size;
+        this.lifeSpan = span;
+        this.generation = 0;
+        this.life = this.lifeSpan;
+        this.allDead = true;
+        this.dots = [];
+        for (let i = 0; i < this.popSize; i++) {
+            this.dots[i] = new Dot(this.life);
+        }
     }
 
-    this.run = function () {
-        let allDead = true;
-        for (let i = 0; i < this.dots.length; i++) {
-            let dot = this.dots[i];
-            allDead = allDead && dot.dead;
-            dot.update();
-            // dot.show();
+
+    run() {
+        //update
+        this.allDead = true;
+        let finish = false;
+        for (let n = 0; n < speed.value(); n++) {
+            for (let dot of this.dots) {
+                this.allDead = this.allDead && dot.dead;
+                finish = finish || dot.finished;
+                dot.update();
+            }
+        }
+        this.life -= speed.value();
+        //render
+        if (showAll.value() === 'true') {
+            for (let dot of this.dots) {
+                dot.show();
+            }
         }
         this.dots[0].show();
-        this.life--;
-        if (this.life <= 0 || allDead === true) {
+
+        if (finish === true || this.life <= 0 || this.allDead === true) {
             this.evaluate();
         }
     };
 
-    this.fitnessEval = function () {
-        let maxFit = 0;
+    fitnessEval() {
         let sumFit = 0;
-        let bestDot = null;
-        for (let i = 0; i < this.dots.length; i++) {
-            let dot = this.dots[i];
+        let bestDot = this.dots[0];
+        for (let dot of this.dots) {
             let fitness = dot.calcFitness();
-            sumFit += dot.fitness;
-            if (fitness > maxFit) {
-                maxFit = fitness;
+            sumFit += fitness;
+            if (fitness > bestDot.fitness) {
                 bestDot = dot;
             }
         }
-        sumFit = sumFit - bestDot.fitness + (bestDot.fitness * 10);
-        bestDot.fitness *= 10;
-        for (let i = 0; i < this.dots.length; i++) {
-            let dot = this.dots[i];
+        sumFit = sumFit - bestDot.fitness + (bestDot.fitness * 5);
+        bestDot.fitness *= 5;
+        for (let dot of this.dots) {
             dot.normalizeFitness(sumFit);
         }
         return bestDot;
     };
 
-    this.evaluate = function () {
+    evaluate() {
         let bestDot = this.fitnessEval();
         if (finished === false && bestDot.finished === true) {
             finished = true;
-            console.log('FINISHED! -->> ', this.generation);
+            print('FINISHED! -->> ', this.generation, bestDot);
         }
         this.generation++;
-        console.log('gen ' + this.generation);
-        if (finished === false && this.generation % 5 === 0) {
+        if (finished === false && this.allDead === false && this.generation % 5 === 0) {
             this.lifeSpan += 100;
         }
         if (finished === true && bestDot.fitness < this.lifeSpan) {
             this.lifeSpan = bestDot.fuel;
         }
         this.life = this.lifeSpan;
+        print('gen', this.generation, this.lifeSpan);
         let newDots = [];
-        for (let i = 1; i < this.dots.length; i++) {
+        for (let i = 1; i < this.popSize; i++) {
             let parentA = this.pickOneDot();
             let parentB = this.pickOneDot();
             newDots[i] = parentA.crossover(parentB, this.lifeSpan);
         }
         newDots[0] = bestDot.clone();
-        newDots[0].size *= 1.5;
         this.dots = newDots;
     };
 
-    this.pickOneDot = function () {
+    pickOneDot() {
         let num = random();
         while (true) {
             let dot = random(this.dots);
