@@ -4,8 +4,8 @@ class Target {
     }
 
     show() {
-        noStroke();
-        fill(100, 255, 100, 100);
-        ellipse(this.pos.x, this.pos.y, 20, 20);
-    };
+        stroke(50, 255, 50, 150);
+        strokeWeight(20);
+        point(this.pos.x, this.pos.y);
+    }
 }

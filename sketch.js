@@ -1,15 +1,15 @@
 let population;
 let target;
 const solids = [];
-let finished = false;
-let speed;
-let showAll;
+let mazeFinished = false;
+let speedSlider;
+let showAllSlider;
 
 function setup() {
     createCanvas(600, 800);
-    speed = createSlider(1, 10, 1, 1);
-    showAll = createButton('show best', true);
-    showAll.mousePressed(showHandle);
+    speedSlider = createSlider(1, 20, 1, 1);
+    showAllSlider = createButton('show best', true);
+    showAllSlider.mousePressed(showHandle);
     population = new Population(1000, 100);
     target = new Target();
     solids.push(new Obstacle(0, height * 0.25, width * 0.75, 15));
@@ -29,11 +29,11 @@ function draw() {
 }
 
 function showHandle() {
-    let value = showAll.value();
-    showAll.value(value === 'false');
+    let value = showAllSlider.value();
+    showAllSlider.value(value === 'false');
     if (value === 'false') {
-        showAll.html('show best');
+        showAllSlider.html('show best');
     } else {
-        showAll.html('show all');
+        showAllSlider.html('show all');
     }
 }

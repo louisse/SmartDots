@@ -1,23 +1,21 @@
 class DNA {
-    constructor(moves, genes, color) {
-        this.moveCount = moves;
+    constructor(maxMoves, genes, color) {
+        this.maxMoves = maxMoves;
         this.mutationRate = 0.03;
-        this.bias = 0.50;
-        this.genes = typeof genes === 'undefined' ? this.makeRandomGenes(this.moveCount) : genes;
+        this.genes = typeof genes === 'undefined' ? this.makeRandomGenes(this.maxMoves) : genes;
         this.color = typeof color === 'undefined' ? floor(random(360)) : color;
     }
 
-    move(count) {
+    think(count) {
         return this.genes[count];
-    };
+    }
 
     clone() {
-        return new DNA(this.moveCount, this.genes, this.color);
-    };
+        return new DNA(this.maxMoves, this.genes, this.color);
+    }
 
-    crossover(partner, moveCount) {
+    crossoverGenes(partner, moveCount) {
         let newGenes = [];
-        let newColor = this.color;
         let midpoint = random(moveCount);
         for (let i = 0; i < this.genes.length; i++) {
             newGenes[i] = this.genes[i];
@@ -33,20 +31,30 @@ class DNA {
         } else if (newGenes.length > moveCount) {
             newGenes.length = moveCount;
         }
-        if (this.decide(this.bias) === false) {
+        return newGenes;
+    }
+
+    crossoverColor(partner) {
+        let newColor = this.color;
+        if (this.decide(0.5) === false) {
             newColor = partner.color;
         }
         if (this.decide(this.mutationRate) === true) {
             newColor = floor(random(360));
         }
+        return newColor
+    }
 
-        return new DNA(this.moveCount, newGenes, newColor);
-    };
+    crossover(partner, moveCount) {
+        let newGenes = this.crossoverGenes(partner, moveCount);
+        let newColor = this.crossoverColor(partner);
+        return new DNA(this.maxMoves, newGenes, newColor);
+    }
 
     decide(chance) {
         let roll = random();
         return roll <= chance;
-    };
+    }
 
     makeRandomGenes(moveCount) {
         let arr = [];

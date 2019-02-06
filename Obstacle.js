@@ -9,5 +9,5 @@ class Obstacle {
         noStroke();
         fill(255, 50, 50, 100);
         rect(this.pos.x, this.pos.y, this.width, this.height);
-    };
+    }
 }

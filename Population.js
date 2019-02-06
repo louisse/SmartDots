@@ -4,7 +4,7 @@ class Population {
         this.lifeSpan = span;
         this.generation = 0;
         this.life = this.lifeSpan;
-        this.allDead = true;
+        this.allIsDead = true;
         this.dots = [];
         for (let i = 0; i < this.popSize; i++) {
             this.dots[i] = new Dot(this.life);
@@ -14,28 +14,28 @@ class Population {
 
     run() {
         //update
-        this.allDead = true;
-        let finish = false;
-        for (let n = 0; n < speed.value(); n++) {
+        this.allIsDead = true;
+        let oneFinished = false;
+        for (let n = 0; n < speedSlider.value(); n++) {
             for (let dot of this.dots) {
-                this.allDead = this.allDead && dot.dead;
-                finish = finish || dot.finished;
+                this.allIsDead = this.allIsDead && dot.isDead;
+                oneFinished = oneFinished || dot.isFinished;
                 dot.update();
             }
         }
-        this.life -= speed.value();
+        this.life -= speedSlider.value();
         //render
-        if (showAll.value() === 'true') {
+        if (showAllSlider.value() === 'true') {
             for (let dot of this.dots) {
                 dot.show();
             }
         }
         this.dots[0].show();
 
-        if (finish === true || this.life <= 0 || this.allDead === true) {
+        if (oneFinished === true || this.life <= 0 || this.allIsDead === true) {
             this.evaluate();
         }
-    };
+    }
 
     fitnessEval() {
         let sumFit = 0;
@@ -53,20 +53,20 @@ class Population {
             dot.normalizeFitness(sumFit);
         }
         return bestDot;
-    };
+    }
 
     evaluate() {
         let bestDot = this.fitnessEval();
-        if (finished === false && bestDot.finished === true) {
-            finished = true;
+        if (mazeFinished === false && bestDot.isFinished === true) {
+            mazeFinished = true;
             print('FINISHED! -->> ', this.generation, bestDot);
         }
         this.generation++;
-        if (finished === false && this.allDead === false && this.generation % 5 === 0) {
+        if (mazeFinished === false && this.allIsDead === false && this.generation % 5 === 0) {
             this.lifeSpan += 100;
         }
-        if (finished === true && bestDot.fitness < this.lifeSpan) {
-            this.lifeSpan = bestDot.fuel;
+        if (mazeFinished === true && bestDot.moveCount < this.lifeSpan) {
+            this.lifeSpan = bestDot.moveCount;
         }
         this.life = this.lifeSpan;
         print('gen', this.generation, this.lifeSpan);
@@ -78,7 +78,7 @@ class Population {
         }
         newDots[0] = bestDot.clone();
         this.dots = newDots;
-    };
+    }
 
     pickOneDot() {
         let num = random();
@@ -89,5 +89,5 @@ class Population {
                 return dot;
             }
         }
-    };
+    }
 }
