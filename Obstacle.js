@@ -7,7 +7,7 @@ class Obstacle {
 
     show() {
         noStroke();
-        fill(255, 50, 50, 100);
+        fill(200, 50, 50, 200);
         rect(this.pos.x, this.pos.y, this.width, this.height);
     }
 }
